@@ -25,5 +25,6 @@ Library Reissuer requires the following modules to be installed
    [selenium]: <https://www.seleniumhq.org/>
    [bs4]: <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>
    [py36]: <https://www.python.org/downloads/release/python-360/>
+   [datetime]: <https://www.w3schools.com/python/python_datetime.asp>
 
    -- Jedi18 (Akhil J Nair)
