@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import datetime
+import email_librarydata
 
 # --- UNCOMMENT LATER AFTER DEBUGGING ---
 #To make the browser not open up i.e. open up a headless chrome browser
@@ -15,10 +16,13 @@ import datetime
 
 print("Please enter your username :- ")
 usern = input().strip()
+print("Please enter your email id (Where you wish to have the details sent to)")
+to_email = input().strip()
 
 browser = webdriver.Chrome(r'chromedriver_win32/chromedriver.exe')
 browser.get('http://14.139.108.229/W27/login.aspx?ReturnUrl=%2fw27%2fMyInfo%2fw27MyInfo.aspx')
 
+print()
 # Login using the given credentials
 
 username = browser.find_element_by_id("txtUserName")
@@ -52,17 +56,26 @@ for row_index in range(1,len(table_rows)):
     return_date_str = return_date_str.replace('-', ' ')
     return_date = datetime.datetime.strptime(return_date_str,'%d %b %Y')
 
-    if today.date() == return_date.date():
-        print("Ruuuuun today's the return date!!!! (If you can't reissue, if you can just sit back and relax)")
-    elif today > return_date:
-        fine = table_elements[7].span.text.strip()
-        print("Whoopsie, too late, your fine for this book is - {}".format(fine))
+    if today >= return_date:
+        if today.date() == return_date.date():
+            print("Ruuuuun today's the return date!!!! (If you can't reissue, if you can just sit back and relax)")
+        else:
+            fine = table_elements[7].span.text.strip()
+            print("Whoopsie, too late, your fine for this book is - {}".format(fine))
         print("Reissuing...")
-        browser.find_element_by_id("ctl00_ContentPlaceHolder1_CtlMyLoans1_grdLoans_ctl02_Button1").click()
+        browser.find_element_by_id(f"ctl00_ContentPlaceHolder1_CtlMyLoans1_grdLoans_ctl0{row_index+1}_Button1").click()
         print("Hurray! Reissued")
+        print()
 
     days_remaining = return_date - today
 
     print('{} by {} - {}'.format(title_str,author_str,return_date))
     print('Number of days remaining before reissuing date is {}'.format(days_remaining.days))
     print()
+
+# Total fine
+total_fine = soup.find_all('span', class_='oBorrMsg')[1].text
+print("Overall total fine - {}".format(total_fine))
+print("Sending email...")
+
+email_librarydata.email_data(to_email, days_remaining, title_str, author_str, return_date)
